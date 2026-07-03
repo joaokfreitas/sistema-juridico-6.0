@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema Jurídico & Cartório Online</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#1a365d;--primary-light:#2c5282;--accent:#e53e3e;--success:#38a169;--warning:#d69e2e;--bg:#0f172a;--bg-card:#1e293b;--bg-hover:#334155;--text:#f1f5f9;--muted:#94a3b8;--border:#334155;--r:16px;--rs:10px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.sidebar{position:fixed;left:0;top:0;width:260px;height:100vh;background:var(--bg-card);border-right:1px solid var(--border);z-index:100;padding:24px 0;transition:transform .3s}
+.sidebar-logo{display:flex;align-items:center;gap:12px;padding:0 24px 24px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.sidebar-logo i{font-size:28px;color:var(--accent)}
+.sidebar-logo span{font-size:18px;font-weight:800}
+.sidebar-logo small{display:block;font-size:11px;color:var(--muted);font-weight:500}
+.nav-item{display:flex;align-items:center;gap:14px;padding:14px 24px;cursor:pointer;transition:all .2s;border-left:3px solid transparent;color:var(--muted);font-weight:500;font-size:14px}
+.nav-item:hover{background:var(--bg-hover);color:var(--text)}
+.nav-item.active{background:rgba(229,62,62,.1);color:var(--accent);border-left-color:var(--accent)}
+.nav-item i{width:22px;text-align:center;font-size:16px}
+.main-content{margin-left:260px;padding:32px;min-height:100vh}
+.page-header{margin-bottom:28px}
+.page-header h1{font-size:32px;font-weight:800;letter-spacing:-1px;margin-bottom:6px}
+.page-header p{color:var(--muted);font-size:15px}
+.hidden{display:none!important}
+.card{background:var(--bg-card);border-radius:var(--r);border:1px solid var(--border);padding:24px;margin-bottom:20px;transition:all .2s}
+.card:hover{border-color:var(--primary-light)}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.card-title{font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px}
+.card-title i{color:var(--accent)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:var(--rs);border:none;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:14px;transition:all .2s}
+.btn-primary{background:var(--accent);color:white}
+.btn-primary:hover{background:#c53030;transform:translateY(-1px);box-shadow:0 4px 15px rgba(229,62,62,.3)}
+.btn-secondary{background:var(--primary-light);color:white}
+.btn-secondary:hover{background:var(--primary)}
+.btn-success{background:var(--success);color:white}
+.btn-danger{background:var(--accent);color:white}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.btn-sm{padding:6px 14px;font-size:13px}
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.form-control{width:100%;padding:12px 16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;transition:all .2s}
+.form-control:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(229,62,62,.1)}
+textarea.form-control{min-height:100px;resize:vertical}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:768px){.form-row{grid-template-columns:1fr}}
+.checkbox-group{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px}
+.checkbox-item{display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--bg);border:2px solid var(--border);border-radius:var(--rs);cursor:pointer;transition:all .2s;user-select:none;position:relative}
+.checkbox-item:hover{border-color:var(--primary-light)}
+.checkbox-item.active{border-color:var(--success);background:rgba(56,161,105,.1)}
+.checkbox-item i{font-size:16px;color:var(--muted)}
+.checkbox-item.active i{color:var(--success)}
+.checkbox-item span{font-size:13px;font-weight:600}
+.atenuante-actions{display:flex;gap:4px;margin-left:10px;z-index:10}
+.atenuante-actions button{background:none;border:none;color:var(--muted);cursor:pointer;padding:2px 4px;border-radius:4px}
+.atenuante-actions button:hover{color:var(--accent);background:rgba(229,62,62,0.1)}
+.crime-list{max-height:400px;overflow-y:auto}
+.crime-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:10px;cursor:pointer;transition:all .2s;position:relative}
+.crime-item:hover{border-color:var(--primary-light);background:var(--bg-hover)}
+.crime-item.selected{border-color:var(--accent);background:rgba(229,62,62,.08)}
+.crime-check{width:22px;height:22px;border:2px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.crime-item.selected .crime-check{background:var(--accent);border-color:var(--accent)}
+.crime-item.selected .crime-check i{color:white;font-size:12px}
+.crime-info{flex:1}
+.crime-name{font-weight:600;font-size:14px;margin-bottom:2px}
+.crime-desc{font-size:12px;color:var(--muted)}
+.crime-penalty{text-align:right;font-size:13px}
+.crime-penalty .pena{color:var(--accent);font-weight:700}
+.crime-penalty .multa{color:var(--warning);font-weight:600;font-size:12px}
+.crime-actions{display:flex;gap:6px;opacity:0;transition:opacity .2s}
+.crime-item:hover .crime-actions{opacity:1}
+.crime-actions button{background:none;border:none;color:var(--muted);cursor:pointer;padding:4px;border-radius:4px;transition:all .2s}
+.crime-actions button:hover{color:var(--accent);background:rgba(229,62,62,.1)}
+.preview-panel{background:var(--bg);border:2px solid var(--border);border-radius:var(--r);padding:24px;position:sticky;top:20px}
+.preview-header{display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.preview-header i{font-size:20px;color:var(--accent)}
+.preview-header h3{font-size:16px;font-weight:700}
+.preview-section{margin-bottom:16px}
+.preview-section h4{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px}
+.preview-section p,.preview-section div{font-size:13px;line-height:1.6}
+.preview-crimes-list{display:flex;flex-direction:column;gap:6px}
+.preview-crime-tag{display:flex;justify-content:space-between;padding:8px 12px;background:var(--bg-card);border-radius:8px;font-size:13px}
+.preview-total{margin-top:20px;padding-top:16px;border-top:2px solid var(--accent)}
+.total-row{display:flex;justify-content:space-between;padding:6px 0;font-size:14px}
+.total-row.final{font-size:18px;font-weight:800;color:var(--accent);margin-top:8px;padding-top:8px;border-top:1px dashed var(--border)}
+.discount-tag{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--success);margin-top:4px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.modal-overlay.active{opacity:1;pointer-events:all}
+.modal{background:var(--bg-card);border-radius:var(--r);border:1px solid var(--border);width:90%;max-width:560px;max-height:90vh;overflow-y:auto;transform:scale(.95);transition:transform .3s;box-shadow:0 10px 40px rgba(0,0,0,.4)}
+.modal-overlay.active .modal{transform:scale(1)}
+.modal-header{padding:24px 28px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-header h2{font-size:20px;font-weight:700}
+.modal-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.modal-close:hover{background:var(--bg);color:var(--accent)}
+.modal-body{padding:24px 28px}
+.modal-footer{padding:20px 28px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+.cartorio-categories{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.cartorio-category{background:var(--bg-card);border-radius:var(--r);border:1px solid var(--border);overflow:hidden;transition:all .2s}
+.cartorio-category:hover{border-color:var(--primary-light)}
+.cat-header{padding:18px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .2s}
+.cat-header:hover{background:var(--bg-hover)}
+.cat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.cat-icon.portes{background:rgba(56,161,105,.15);color:var(--success)}
+.cat-icon.casamentos{background:rgba(66,153,225,.15);color:#4299e1}
+.cat-icon.adocao{background:rgba(236,201,75,.15);color:#ecc94b}
+.cat-icon.divorcio{background:rgba(237,100,100,.15);color:#ed6464}
+.cat-info{flex:1}
+.cat-info h3{font-size:15px;font-weight:700}
+.cat-info span{font-size:12px;color:var(--muted)}
+.cat-toggle{color:var(--muted);transition:transform .3s}
+.cat-toggle.open{transform:rotate(180deg)}
+.cat-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.cat-body.open{max-height:800px}
+.cat-body-inner{padding:0 20px 20px}
+.service-item{display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:8px;background:var(--bg);border-radius:var(--rs);border:1px solid transparent;cursor:pointer;transition:all .2s}
+.service-item:hover{border-color:var(--primary-light);background:var(--bg-hover)}
+.service-item i{font-size:14px;width:20px;text-align:center}
+.service-item span{font-size:13px;font-weight:500;flex:1}
+.subpage{background:var(--bg-card);border-radius:var(--r);border:1px solid var(--border);padding:24px}
+.subpage-header{display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.subpage-header i{font-size:24px}
+.subpage-header h2{font-size:22px;font-weight:700}
+.back-btn{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;cursor:pointer;margin-bottom:16px;transition:color .2s}
+.back-btn:hover{color:var(--accent)}
+.data-table-container{width:100%;overflow-x:auto;margin-top:15px;border:1px solid var(--border);border-radius:var(--rs)}
+.data-table{width:100%;border-collapse:collapse;font-size:13px;background:var(--bg-card)}
+.data-table th{text-align:left;padding:12px 16px;background:var(--bg);color:var(--muted);font-weight:600;text-transform:uppercase;font-size:11px;letter-spacing:.5px}
+.data-table td{padding:14px 16px;border-bottom:1px solid var(--border);color:var(--text)}
+.data-table tr:hover td{background:var(--bg-hover)}
+.status-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.status-pendente{background:rgba(214,158,46,.15);color:var(--warning)}
+.status-emandamento{background:rgba(66,153,225,.15);color:#4299e1}
+.status-concluido{background:rgba(56,161,105,.15);color:var(--success)}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--rs);padding:20px;text-align:center}
+.stat-value{font-size:32px;font-weight:800;color:var(--accent);margin-bottom:4px}
+.stat-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.mobile-toggle{display:none;position:fixed;top:16px;left:16px;z-index:200;background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;cursor:pointer}
+@media(max-width:1024px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main-content{margin-left:0;padding:20px;padding-top:60px}.mobile-toggle{display:block}.crime-actions{opacity:1!important}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.animate-in{animation:fadeIn .4s ease forwards}
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-state i{font-size:48px;margin-bottom:16px;opacity:.3}
+.empty-state p{font-size:14px}
+.tag-input-container{display:flex;flex-wrap:wrap;gap:6px;padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);min-height:44px;cursor:text}
+.tag-input-container:focus-within{border-color:var(--accent)}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:var(--primary-light);border-radius:6px;font-size:12px;font-weight:500}
+.tag button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px}
+.tag button:hover{color:var(--accent)}
+.tag-input{background:none;border:none;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;flex:1;min-width:80px;outline:none}
+@media print{.sidebar,.mobile-toggle,.btn{display:none!important}.main-content{margin-left:0;padding:0}.preview-panel{position:static;border:2px solid #000}}
+
+#registro-bloqueio {position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;}
+#registro-bloqueio .modal-registro-inicial {background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:32px;width:100%;max-width:480px;box-shadow:0 10px 30px rgba(0,0,0,0.5);}
+#registro-bloqueio h2 {font-size:24px;font-weight:800;margin-bottom:8px;text-align:center;}
+#registro-bloqueio p {color:var(--muted);font-size:14px;text-align:center;margin-bottom:24px;}
+.user-profile-badge {display:flex;align-items:center;gap:12px;padding:12px 24px;border-top:1px solid var(--border);margin-top:auto;background:rgba(0,0,0,0.1);}
+.user-profile-badge i {font-size:24px;color:var(--accent);}
+.user-profile-info {display:flex;flex-direction:column;}
+.user-profile-info span {font-size:14px;font-weight:700;}
+.user-profile-info small {font-size:11px;color:var(--muted);}
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<div id="registro-bloqueio">
+    <div class="modal-registro-inicial">
+        <h2>Acesso ao Sistema</h2>
+        <p>Preencha suas credenciais para liberar as abas e recursos do painel.</p>
+        <div class="form-group">
+            <label>Nome na Cidade</label>
+            <input type="text" class="form-control" id="reg-user-nome" placeholder="Seu nome completo">
+        </div>
+        <div class="form-group">
+            <label>Seu ID</label>
+            <input type="number" class="form-control" id="reg-user-id" placeholder="Ex: 1042">
+        </div>
+        <div class="form-group">
+            <label>Cargo Atual</label>
+            <select class="form-control" id="reg-user-cargo">
+                <option value="Estagiário OAB">Estagiário OAB</option>
+                <option value="advogado junior">Advogado Junior</option>
+                <option value="advogado sênior">Advogado Sênior</option>
+                <option value="advogado">Advogado</option>
+                <option value="escrivão">Escrivão</option>
+                <option value="promotor">Promotor</option>
+                <option value="juiz">Juiz</option>
+                <option value="CORREGEDOR">CORREGEDOR</option>
+                <option value="DIRETORIA TRIBUNAL">DIRETORIA TRIBUNAL</option>
+                <option value="DESEMBARGADOR">DESEMBARGADOR</option>
+                <option value="CHEF.DESEMBARGADOR">CHEF.DESEMBARGADOR</option>
+            </select>
+        </div>
+        <button class="btn btn-primary" style="width:100%; justify-content:center; margin-top:10px;" onclick="efetuarRegistroInicial()">
+            <i class="fas fa-sign-in-alt"></i> Entrar no Sistema
+        </button>
+    </div>
+</div>
+
+<button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+
+<nav class="sidebar" id="sidebar" style="display:flex; flex-direction:column;">
+<div class="sidebar-logo"><i class="fas fa-scale-balanced"></i><div><span>Justiça Digital</span><small>Sistema Jurídico & Cartório</small></div></div>
+<div class="nav-item active" onclick="showPage('calculadora')" data-page="calculadora"><i class="fas fa-gavel"></i><span>Calculadora Penal</span></div>
+<div class="nav-item" onclick="showPage('cartorio')" data-page="cartorio"><i class="fas fa-building-columns"></i><span>Cartório Online</span></div>
+<div class="nav-item" onclick="showPage('contas')" data-page="contas"><i class="fas fa-users"></i><span>Contas Online</span></div>
+
+<div class="user-profile-badge" id="user-badge" style="display:none;">
+    <i class="fas fa-user-shield"></i>
+    <div class="user-profile-info">
+        <span id="badge-nome">Nome</span>
+        <small id="badge-cargo">Cargo (ID: 0)</small>
+    </div>
+</div>
+</nav>
+
+<main class="main-content">
+
+<div id="page-calculadora" class="page animate-in">
+<div class="page-header">
+<h1><i class="fas fa-gavel" style="color:var(--accent);margin-right:12px"></i>Calculadora Penal</h1>
+<p>Selecione os crimes cometidos, preencha os dados do acusado e visualize a pena total calculada.</p>
+</div>
+<div style="display:grid;grid-template-columns:1fr 380px;gap:24px">
+<div>
+<div class="card">
+<div class="card-header"><div class="card-title"><i class="fas fa-user"></i>Dados do Acusado</div></div>
+<div class="form-row">
+<div class="form-group"><label>ID do Acusado</label><input type="text" class="form-control" id="acusado-id" placeholder="Ex: AC-2024-001" oninput="updatePreview()"></div>
+<div class="form-group"><label>Nome Completo</label><input type="text" class="form-control" id="acusado-nome" placeholder="Nome do acusado" oninput="updatePreview()"></div>
+</div>
+<div class="form-group"><label>Descrição do Acontecimento</label><textarea class="form-control" id="acusado-descricao" placeholder="Descreva detalhadamente o ocorrido..." oninput="updatePreview()"></textarea></div>
+<div class="form-group"><label>Itens Apreendidos</label><div class="tag-input-container" id="tag-container" onclick="document.getElementById('tag-input').focus()"><input type="text" class="tag-input" id="tag-input" placeholder="Digite e pressione Enter..." onkeydown="handleTagInput(event)"></div></div>
+</div>
+
+<div class="card">
+<div class="card-header">
+    <div class="card-title"><i class="fas fa-hand-holding-heart"></i>Circunstâncias Atenuantes</div>
+    <button class="btn btn-primary btn-sm" onclick="openAtenuanteModal('add')"><i class="fas fa-plus"></i> Criar Atenuante</button>
+</div>
+<div class="checkbox-group" id="atenuantes-container">
+    </div>
+</div>
+
+<div class="card">
+<div class="card-header"><div class="card-title"><i class="fas fa-list"></i>Crimes Cadastrados</div><button class="btn btn-primary btn-sm" onclick="openModal('add')"><i class="fas fa-plus"></i>Adicionar Crime</button></div>
+<div class="crime-list" id="crime-list"></div>
+</div>
+</div>
+
+<div>
+<div class="preview-panel">
+<div class="preview-header"><i class="fas fa-file-contract"></i><h3>Prévia da Sentença</h3></div>
+<div class="preview-section"><h4>Dados do Acusado</h4><div id="preview-id" style="color:var(--muted)">ID: --</div><div id="preview-nome" style="color:var(--muted)">Nome: --</div></div>
+<div class="preview-section"><h4>Ocorrido</h4><p id="preview-descricao" style="color:var(--muted);font-style:italic">Nenhuma descrição informada.</p></div>
+<div class="preview-section"><h4>Itens Apreendidos</h4><div id="preview-itens" style="color:var(--muted)">Nenhum item apreendido.</div></div>
+<div class="preview-section"><h4>Crimes Selecionados</h4><div class="preview-crimes-list" id="preview-crimes"><div style="color:var(--muted);font-style:italic">Nenhum crime selecionado.</div></div></div>
+<div class="preview-section"><h4>Circunstâncias</h4><div id="preview-circunstancias" style="color:var(--muted)">Nenhuma circunstância atenuante.</div></div>
+<div class="preview-total">
+<div class="total-row"><span>Pena Total (bruta)</span><span id="total-pena-bruta">0 meses</span></div>
+<div class="total-row"><span>Multa Total (bruta)</span><span id="total-multa-bruta">R$ 0,00</span></div>
+<div class="total-row" id="row-desconto" style="display:none"><span>Desconto Atenuante</span><span id="total-desconto" style="color:var(--success)">-0%</span></div>
+<div class="total-row final"><span>PENA FINAL</span><span id="total-pena-final">0 meses</span></div>
+<div class="total-row final" style="color:var(--warning)"><span>MULTA FINAL</span><span id="total-multa-final">R$ 0,00</span></div>
+</div>
+<button class="btn btn-secondary" style="width:100%;margin-top:16px" onclick="finalizarProcessoEImprimir()"><i class="fas fa-print"></i>Imprimir & Registrar</button>
+</div>
+</div>
+</div>
+</div>
+
+<div id="page-cartorio" class="page hidden">
+<div class="page-header">
+<h1><i class="fas fa-building-columns" style="color:var(--accent);margin-right:12px"></i>Cartório Online</h1>
+<p>Gerencie registros de portes, casamentos, adoções e divórcios.</p>
+</div>
+<div class="stats-grid">
+<div class="stat-card"><div class="stat-value" id="stat-total">0</div><div class="stat-label">Total de Registros</div></div>
+<div class="stat-card"><div class="stat-value" id="stat-pendentes">0</div><div class="stat-label">Pendentes / Em proc.</div></div>
+<div class="stat-card"><div class="stat-value" id="stat-concluidos">0</div><div class="stat-label">Concluídos</div></div>
+<div class="stat-card"><div class="stat-value" id="stat-valor">R$ 0</div><div class="stat-label">Valor Total</div></div>
+</div>
+
+<div class="cartorio-categories" id="cartorio-categories"></div>
+
+<div id="cartorio-subpage" class="hidden" style="margin-top:20px">
+<div class="back-btn" onclick="backToCategories()"><i class="fas fa-arrow-left"></i> Voltar para Categorias</div>
+<div class="subpage" id="subpage-content"></div>
+</div>
+
+<div class="card" style="margin-top:24px;">
+    <div class="card-header"><div class="card-title"><i class="fas fa-history"></i>Histórico Geral de Procedimentos (Cartório)</div></div>
+    <div class="data-table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Advogado (Cargo/ID)</th>
+                    <th>Procedimento</th>
+                    <th>Data/Hora</th>
+                    <th>Estado / Status</th>
+                </tr>
+            </thead>
+            <tbody id="historico-cartorio-corpo">
+                </tbody>
+        </table>
+    </div>
+</div>
+</div>
+
+<div id="page-contas" class="page hidden">
+    <div class="page-header">
+        <h1><i class="fas fa-users" style="color:var(--accent);margin-right:12px"></i>Contas Online</h1>
+        <p>Visualização de todos os usuários registrados no sistema e seus históricos de ações.</p>
+    </div>
+    <div class="card">
+        <div class="card-header"><div class="card-title"><i class="fas fa-circle" style="color:var(--success); font-size:12px;"></i> Tabela de Contas Conectadas</div></div>
+        <div class="data-table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Nome na Cidade</th>
+                        <th>ID</th>
+                        <th>Cargo</th>
+                        <th>Ações / Histórico</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-contas-corpo">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</main>
+
+<div class="modal-overlay" id="modal-crime">
+<div class="modal">
+<div class="modal-header"><h2 id="modal-title">Adicionar Crime</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>
+<div class="modal-body">
+<input type="hidden" id="crime-edit-id">
+<div class="form-group"><label>Nome do Crime</label><input type="text" class="form-control" id="crime-nome" placeholder="Ex: Furto Qualificado"></div>
+<div class="form-group"><label>Por que foi Criado</label><input type="text" class="form-control" id="crime-motivo" placeholder="Motivo da criação deste crime"></div>
+<div class="form-group"><label>Descrição do Crime</label><textarea class="form-control" id="crime-descricao" placeholder="Descreva o crime..."></textarea></div>
+<div class="form-row">
+<div class="form-group"><label>Pena (em meses)</label><input type="number" class="form-control" id="crime-pena" placeholder="Ex: 24" min="0"></div>
+<div class="form-group"><label>Valor da Multa (R$)</label><input type="number" class="form-control" id="crime-multa" placeholder="Ex: 5000" min="0" step="0.01"></div>
+</div>
+</div>
+<div class="modal-footer"><button class="btn btn-outline" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveCrime()"><i class="fas fa-save"></i>Salvar Crime</button></div>
+</div>
+</div>
+
+<div class="modal-overlay" id="modal-atenuante">
+<div class="modal">
+<div class="modal-header"><h2 id="atenuante-modal-title">Criar Novo Atenuante</h2><button class="modal-close" onclick="closeAtenuanteModal()"><i class="fas fa-times"></i></button></div>
+<div class="modal-body">
+<input type="hidden" id="atenuante-edit-index">
+<div class="form-group"><label>Nome da Circunstância</label><input type="text" class="form-control" id="atenuante-nome" placeholder="Ex: Réu Confesso"></div>
+<div class="form-group"><label>Porcentagem de Redução (%)</label><input type="number" class="form-control" id="atenuante-porcentagem" placeholder="Ex: 15" min="0" max="100"></div>
+<div class="form-group"><label>Descrição do Atenuante</label><textarea class="form-control" id="atenuante-descricao" placeholder="Descreva as condições deste atenuante..."></textarea></div>
+<div class="form-group" id="campo-porque-criar"><label>Porque Criar / Motivação</label><input type="text" class="form-control" id="atenuante-porque" placeholder="Justificativa da existência ou criação"></div>
+</div>
+<div class="modal-footer"><button class="btn btn-outline" onclick="closeAtenuanteModal()">Cancelar</button><button class="btn btn-primary" onclick="saveAtenuante()"><i class="fas fa-save"></i> Salvar Atenuante</button></div>
+</div>
+</div>
+
+<div class="modal-overlay" id="modal-registro">
+<div class="modal">
+<div class="modal-header"><h2 id="modal-reg-title">Novo Registro</h2><button class="modal-close" onclick="closeRegistroModal()"><i class="fas fa-times"></i></button></div>
+<div class="modal-body" id="modal-reg-body"></div>
+<div class="modal-footer"><button class="btn btn-outline" onclick="closeRegistroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveRegistro()"><i class="fas fa-save"></i>Salvar Registro</button></div>
+</div>
+</div>
+
+<div class="modal-overlay" id="modal-historico-conta">
+    <div class="modal">
+        <div class="modal-header"><h2>Histórico Completo da Conta</h2><button class="modal-close" onclick="document.getElementById('modal-historico-conta').classList.remove('active')"><i class="fas fa-times"></i></button></div>
+        <div class="modal-body" id="modal-historico-corpo">
+            </div>
+        <div class="modal-footer"><button class="btn btn-outline" onclick="document.getElementById('modal-historico-conta').classList.remove('active')">Fechar</button></div>
+    </div>
+</div>
+
+<script>
+// Dados globais do usuário logado
+let usuarioLogado = null;
+
+let crimes=JSON.parse(localStorage.getItem('crimes'))||[
+{id:1,nome:'Furto Simples',motivo:'Proteger o patrimônio alheio',descricao:'Subtrair coisa móvel alheia para si ou para outrem.',pena:12,multa:2000},
+{id:2,nome:'Furto Qualificado',motivo:'Agravar penas em situações especiais',descricao:'Furto com uso de arma, escalada, ou em lugar fechado.',pena:24,multa:5000},
+{id:3,nome:'Roubo',motivo:'Proteger a integridade física e patrimonial',descricao:'Subtrair coisa móvel com uso de violência ou grave ameaça.',pena:48,multa:10000},
+{id:4,nome:'Homicídio Simples',motivo:'Proteger a vida humana',descricao:'Matar alguém sem qualificadora.',pena:72,multa:15000},
+{id:5,nome:'Tráfico de Drogas',motivo:'Combater o narcotráfico',descricao:'Importar, exportar, remeter, preparar, produzir ou vender drogas.',pena:60,multa:20000},
+{id:6,nome:'Porte Ilegal de Arma',motivo:'Controlar o uso de armas de fogo',descricao:'Possuir arma de fogo sem autorização legal.',pena:36,multa:8000},
+{id:7,nome:'Lesão Corporal',motivo:'Proteger a integridade física',descricao:'Ofender a integridade corporal ou saúde de outrem.',pena:18,multa:3000},
+{id:8,nome:'Ameaça',motivo:'Proteger a tranquilidade pública',descricao:'Ameaçar alguém por palavra, gesto ou escrito.',pena:6,multa:1000}
+];
+
+let atenuantesPadrao = [
+    {nome: 'Réu Confesso', descricao: 'O acusado confessou voluntariamente a autoria do crime.', porcentagem: 20, porque: 'Padrão do sistema'},
+    {nome: 'Advogado Presente', descricao: 'O acusado contou com assistência jurídica profissional no ato.', porcentagem: 10, porque: 'Padrão do sistema'},
+    {nome: 'Réu Primário', descricao: 'O acusado não possui antecedentes criminais registrados.', porcentagem: 15, porque: 'Padrão do sistema'}
+];
+let atenuantes = JSON.parse(localStorage.getItem('atenuantes')) || atenuantesPadrao;
+let atenuantesSelecionados = new Set();
+
+let selectedCrimes=new Set();
+let tags=[];
+
+let cartorioData=JSON.parse(localStorage.getItem('cartorioData'))||{
+portes:{registros:[],feitos:[],valores:[]},
+casamentos:{registros:[],feitos:[],valores:[]},
+adocoes:{registros:[],feitos:[],valores:[]},
+divorcios:{registros:[],feitos:[],valores:[]}
+};
+
+// Histórico Geral do Cartório e Contas Online criados dinamicamente
+let historicoCartorioGeral = JSON.parse(localStorage.getItem('historicoCartorioGeral')) || [];
+let listaContasOnline = JSON.parse(localStorage.getItem('listaContasOnline')) || [];
+let processosCalculadoraSalvos = JSON.parse(localStorage.getItem('processosCalculadoraSalvos')) || [];
+
+let currentCategory=null,currentSubpage=null,editingRegistroIndex=null;
+
+function fmt(v){return Array.isArray(v)?'0,00':Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}
+
+// --- CONTROLE DE LOGIN / REGISTRO INICIAL ---
+function efetuarRegistroInicial() {
+    const nome = document.getElementById('reg-user-nome').value.trim();
+    const id = document.getElementById('reg-user-id').value.trim();
+    const cargo = document.getElementById('reg-user-cargo').value;
+
+    if(!nome || !id) {
+        alert('Por favor, preencha o seu Nome e seu ID da cidade para continuar.');
+        return;
+    }
+
+    usuarioLogado = { nome, id, cargo };
+    
+    // Adicionar à lista de contas do site (se não existir no mock de sessão atual)
+    if(!listaContasOnline.some(c => c.id === id)) {
+        listaContasOnline.push(usuarioLogado);
+        localStorage.setItem('listaContasOnline', JSON.stringify(listaContasOnline));
+    }
+
+    // Liberar interface
+    document.getElementById('registro-bloqueio').style.display = 'none';
+    document.getElementById('user-badge').style.display = 'flex';
+    document.getElementById('badge-nome').textContent = nome;
+    document.getElementById('badge-cargo').textContent = `${cargo} (ID: ${id})`;
+
+    // Inicializar renders básicas
+    renderCrimes();
+    renderAtenuantes();
+    renderTabelaContas();
+    renderHistoricoCartorioGeral();
+    updatePreview();
+}
+
+function showPage(page){
+document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));
+document.getElementById('page-'+page).classList.remove('hidden');
+document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+const item = document.querySelector('[data-page="'+page+'"]');
+if(item) item.classList.add('active');
+
+if(page==='cartorio'){renderCartorioCategories();backToCategories(); renderHistoricoCartorioGeral();}
+if(page==='contas'){renderTabelaContas();}
+}
+
+function saveCrimes(){localStorage.setItem('crimes',JSON.stringify(crimes))}
+function saveCartorio(){localStorage.setItem('cartorioData',JSON.stringify(cartorioData))}
+function saveAtenuantes(){localStorage.setItem('atenuantes',JSON.stringify(atenuantes))}
+
+// --- GERENCIAMENTO DE ATENUANTES ---
+function renderAtenuantes() {
+    const container = document.getElementById('atenuantes-container');
+    container.innerHTML = atenuantes.map((at, index) => `
+        <div class="checkbox-item ${atenuantesSelecionados.has(index) ? 'active' : ''}" onclick="toggleAtenuante(${index})">
+            <i class="fas ${atenuantesSelecionados.has(index) ? 'fa-check-circle' : 'fa-circle-notch'}"></i>
+            <span>${at.nome} (-${at.porcentagem}%)</span>
+            <div class="atenuante-actions" onclick="event.stopPropagation()">
+                <button onclick="openAtenuanteModal('edit', ${index})" title="Editar"><i class="fas fa-edit"></i></button>
+                <button onclick="excluirAtenuante(${index})" title="Excluir"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function toggleAtenuante(index) {
+    if(atenuantesSelecionados.has(index)) atenuantesSelecionados.delete(index);
+    else atenuantesSelecionados.add(index);
+    renderAtenuantes();
+    updatePreview();
+}
+
+function openAtenuanteModal(mode, index = null) {
+    const modal = document.getElementById('modal-atenuante');
+    const title = document.getElementById('atenuante-modal-title');
+    const campoPorque = document.getElementById('campo-porque-criar');
+    
+    document.getElementById('atenuante-edit-index').value = index !== null ? index : '';
+    
+    if(mode === 'edit' && index !== null) {
+        const at = atenuantes[index];
+        title.textContent = 'Editar Atenuante';
+        campoPorque.style.display = 'none'; // Não precisa justificar ao editar se não quiser
+        document.getElementById('atenuante-nome').value = at.nome;
+        document.getElementById('atenuante-porcentagem').value = at.porcentagem;
+        document.getElementById('atenuante-descricao').value = at.descricao;
+        document.getElementById('atenuante-porque').value = at.porque || '';
+    } else {
+        title.textContent = 'Criar Novo Atenuante';
+        campoPorque.style.display = 'block';
+        document.getElementById('atenuante-nome').value = '';
+        document.getElementById('atenuante-porcentagem').value = '';
+        document.getElementById('atenuante-descricao').value = '';
+        document.getElementById('atenuante-porque').value = '';
+    }
+    modal.classList.add('active');
+}
+
+function closeAtenuanteModal() {
+    document.getElementById('modal-atenuante').classList.remove('active');
+}
+
+function saveAtenuante() {
+    const idx = document.getElementById('atenuante-edit-index').value;
+    const nome = document.getElementById('atenuante-nome').value.trim();
+    const porcentagem = parseInt(document.getElementById('atenuante-porcentagem').value) || 0;
+    const descricao = document.getElementById('atenuante-descricao').value.trim();
+    const porque = document.getElementById('atenuante-porque').value.trim();
+
+    if(!nome || porcentagem <= 0 || !descricao) {
+        alert('Por favor preencha o Nome, Descrição e a Porcentagem do atenuante!');
+        return;
+    }
+
+    if(idx !== '') {
+        // Editando existente
+        atenuantes[idx] = { ...atenuantes[idx], nome, porcentagem, descricao };
+    } else {
+        // Criando novo
+        if(!porque) { alert('Informe o motivo/porque está criando este atenuante!'); return; }
+        atenuantes.push({ nome, porcentagem, descricao, porque });
+    }
+
+    saveAtenuantes();
+    renderAtenuantes();
+    updatePreview();
+    closeAtenuanteModal();
+}
+
+function excluirAtenuante(index) {
+    if(!confirm('Deseja excluir este atenuante?')) return;
+    atenuantes.splice(index, 1);
+    atenuantesSelecionados.delete(index);
+    saveAtenuantes();
+    renderAtenuantes();
+    updatePreview();
+}
+
+// --- RENDERS DE CRIMES ---
+function renderCrimes(){
+const list=document.getElementById('crime-list');
+if(crimes.length===0){list.innerHTML='<div class="empty-state"><i class="fas fa-folder-open"></i><p>Nenhum crime cadastrado. Clique em "Adicionar Crime" para começar.</p></div>';return}
+list.innerHTML=crimes.map(crime=>`<div class="crime-item ${selectedCrimes.has(crime.id)?'selected':''}" onclick="toggleCrime(${crime.id})"><div class="crime-check">${selectedCrimes.has(crime.id)?'<i class="fas fa-check"></i>':''}</div><div class="crime-info"><div class="crime-name">${crime.nome}</div><div class="crime-desc">${crime.descricao}</div></div><div class="crime-penalty"><div class="pena">${crime.pena} meses</div><div class="multa">R$ ${fmt(crime.multa)}</div></div><div class="crime-actions" onclick="event.stopPropagation()"><button onclick="editCrime(${crime.id})" title="Editar"><i class="fas fa-pen"></i></button><button onclick="deleteCrime(${crime.id})" title="Excluir"><i class="fas fa-trash"></i></button></div></div>`).join('');
+}
+
+function toggleCrime(id){if(selectedCrimes.has(id))selectedCrimes.delete(id);else selectedCrimes.add(id);renderCrimes();updatePreview()}
+
+function handleTagInput(e){
+if(e.key==='Enter'){e.preventDefault();const val=e.target.value.trim();if(val&&!tags.includes(val)){tags.push(val);renderTags();updatePreview()}e.target.value=''}
+if(e.key==='Backspace'&&e.target.value===''&&tags.length>0){tags.pop();renderTags();updatePreview()}
+}
+function renderTags(){
+const c=document.getElementById('tag-container'),inp=document.getElementById('tag-input');
+c.innerHTML='';tags.forEach((t,i)=>{const s=document.createElement('span');s.className='tag';s.innerHTML=t+' <button onclick="removeTag('+i+')"><i class="fas fa-times"></i></button>';c.appendChild(s)});c.appendChild(inp);
+}
+function removeTag(i){tags.splice(i,1);renderTags();updatePreview()}
+
+function openModal(mode,id){
+const modal=document.getElementById('modal-crime'),title=document.getElementById('modal-title');
+document.getElementById('crime-edit-id').value=id||'';
+if(mode==='edit'&&id){
+const c=crimes.find(x=>x.id===id);if(!c)return;
+title.textContent='Editar Crime';
+document.getElementById('crime-nome').value=c.nome;document.getElementById('crime-motivo').value=c.motivo;
+document.getElementById('crime-descricao').value=c.descricao;document.getElementById('crime-pena').value=c.pena;document.getElementById('crime-multa').value=c.multa;
+}else{
+title.textContent='Adicionar Crime';
+document.getElementById('crime-nome').value='';document.getElementById('crime-motivo').value='';
+document.getElementById('crime-descricao').value='';document.getElementById('crime-pena').value='';document.getElementById('crime-multa').value='';
+}
+modal.classList.add('active');
+}
+function closeModal(){document.getElementById('modal-crime').classList.remove('active')}
+function saveCrime(){
+const id=document.getElementById('crime-edit-id').value;
+const nome=document.getElementById('crime-nome').value.trim();
+const motivo=document.getElementById('crime-motivo').value.trim();
+const descricao=document.getElementById('crime-descricao').value.trim();
+const pena=parseInt(document.getElementById('crime-pena').value)||0;
+const multa=parseFloat(document.getElementById('crime-multa').value)||0;
+if(!nome){alert('Preencha o nome do crime!');return}
+if(id){const idx=crimes.findIndex(c=>c.id==id);if(idx>=0)crimes[idx]={...crimes[idx],nome,motivo,descricao,pena,multa}}
+else{const newId=crimes.length>0?Math.max(...crimes.map(c=>c.id))+1:1;crimes.push({id:newId,nome,motivo,descricao,pena,multa})}
+saveCrimes();renderCrimes();updatePreview();closeModal();
+}
+function editCrime(id){openModal('edit',id)}
+function deleteCrime(id){if(!confirm('Tem certeza que deseja excluir este crime?'))return;crimes=crimes.filter(c=>c.id!==id);selectedCrimes.delete(id);saveCrimes();renderCrimes();updatePreview()}
+
+// --- PREVIEW PANEL & INTEGRAÇÃO DE SESSÃO COM HISTÓRICO ---
+function updatePreview(){
+const id=document.getElementById('acusado-id').value.trim();
+const nome=document.getElementById('acusado-nome').value.trim();
+const descricao=document.getElementById('acusado-descricao').value.trim();
+document.getElementById('preview-id').textContent=id?'ID: '+id:'ID: --';
+document.getElementById('preview-nome').textContent=nome?'Nome: '+nome:'Nome: --';
+document.getElementById('preview-descricao').textContent=descricao||'Nenhuma descrição informada.';
+document.getElementById('preview-descricao').style.color=descricao?'var(--text)':'var(--muted)';
+document.getElementById('preview-descricao').style.fontStyle=descricao?'normal':'italic';
+const itensEl=document.getElementById('preview-itens');
+if(tags.length>0){itensEl.innerHTML=tags.map(t=>'<span style="display:inline-block;padding:2px 8px;background:var(--primary-light);border-radius:4px;margin:2px;font-size:12px">'+t+'</span>').join('');itensEl.style.color='var(--text)'}
+else{itensEl.textContent='Nenhum item apreendido.';itensEl.style.color='var(--muted)'}
+const crimesEl=document.getElementById('preview-crimes');
+const selected=crimes.filter(c=>selectedCrimes.has(c.id));
+if(selected.length>0){crimesEl.innerHTML=selected.map(c=>'<div class="preview-crime-tag"><span>'+c.nome+'</span><span style="color:var(--accent);font-weight:700">'+c.pena+'m / R$ '+fmt(c.multa)+'</span></div>').join('')}
+else{crimesEl.innerHTML='<div style="color:var(--muted);font-style:italic">Nenhum crime selecionado.</div>'}
+
+const circEl=document.getElementById('preview-circunstancias');
+let totalDescontoPct = 0;
+let ativasTextos = [];
+
+atenuantesSelecionados.forEach(idx => {
+    const at = atenuantes[idx];
+    if(at) {
+        totalDescontoPct += at.porcentagem;
+        ativasTextos.push(`${at.nome} (-${at.porcentagem}%)`);
+    }
+});
+
+circEl.innerHTML=ativasTextos.length>0?ativasTextos.map(a=>'<div class="discount-tag"><i class="fas fa-check"></i>'+a+'</div>').join(''):'<span style="color:var(--muted)">Nenhuma circunstância atenuante.</span>';
+let penaTotal=selected.reduce((s,c)=>s+c.pena,0);
+let multaTotal=selected.reduce((s,c)=>s+c.multa,0);
+document.getElementById('total-pena-bruta').textContent=penaTotal+' meses';
+document.getElementById('total-multa-bruta').textContent='R$ '+fmt(multaTotal);
+
+const rowDesconto=document.getElementById('row-desconto');
+if(totalDescontoPct>0){rowDesconto.style.display='flex';document.getElementById('total-desconto').textContent='- '+totalDescontoPct+'%'}
+else{rowDesconto.style.display='none'}
+
+const penaFinal=Math.max(0,Math.round(penaTotal*(1-totalDescontoPct/100)));
+const multaFinal=Math.max(0,Math.round(multaTotal*(1-totalDescontoPct/100)));
+document.getElementById('total-pena-final').textContent=penaFinal+' meses';
+document.getElementById('total-multa-final').textContent='R$ '+fmt(multaFinal);
+}
+
+function finalizarProcessoEImprimir() {
+    const idAcusado = document.getElementById('acusado-id').value.trim();
+    const nomeAcusado = document.getElementById('acusado-nome').value.trim();
+    if(!idAcusado || !nomeAcusado) {
+        alert('Preencha os dados do acusado antes de imprimir/salvar o processo.');
+        return;
+    }
+    
+    // Registrar ação no histórico do Advogado logado
+    const selectedCrimesNomes = crimes.filter(c => selectedCrimes.has(c.id)).map(c => c.nome).join(', ') || "Nenhum selecionado";
+    const processoMeta = {
+        advogadoId: usuarioLogado.id,
+        tipo: 'Calculadora Penal',
+        detalhes: `Sentença de ${nomeAcusado} (ID: ${idAcusado}) - Crimes: ${selectedCrimesNomes} - Pena: ${document.getElementById('total-pena-final').textContent}`,
+        data: new Date().toLocaleDateString('pt-BR'),
+        hora: new Date().toLocaleTimeString('pt-BR')
+    };
+
+    processosCalculadoraSalvos.push(processoMeta);
+    localStorage.setItem('processosCalculadoraSalvos', JSON.stringify(processosCalculadoraSalvos));
+
+    window.print();
+}
+
+// --- TABELA DE CONTAS ONLINE & HISTÓRICO ---
+function renderTabelaContas() {
+    const corpo = document.getElementById('tabela-contas-corpo');
+    if(listaContasOnline.length === 0) {
+        corpo.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--muted);">Nenhuma conta online no momento.</td></tr>`;
+        return;
+    }
+    corpo.innerHTML = listaContasOnline.map(conta => `
+        <tr>
+            <td><strong>${conta.nome}</strong></td>
+            <td>${conta.id}</td>
+            <td><span class="status-badge status-emandamento">${conta.cargo}</span></td>
+            <td>
+                <button class="btn btn-outline btn-sm" onclick="visualizarHistoricoConta('${conta.id}', '${conta.nome}')">
+                    <i class="fas fa-eye"></i> Ver Histórico
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function visualizarHistoricoConta(id, nome) {
+    const modal = document.getElementById('modal-historico-conta');
+    const corpo = document.getElementById('modal-historico-corpo');
+    
+    // Filtrar processos da calculadora e do cartório feitos por essa conta/ID
+    const procCalc = processosCalculadoraSalvos.filter(p => p.advogadoId === id);
+    const procCart = historicoCartorioGeral.filter(p => p.advogadoId === id);
+
+    let html = `<h4 style="margin-bottom:12px; color:var(--accent);">Ações de ${nome} (ID: ${id})</h4>`;
+    
+    html += `<h5 style="margin-top:16px; margin-bottom:6px;">Processos no Cartório:</h5>`;
+    if(procCart.length === 0) { html += `<p style="color:var(--muted); font-size:12px; font-style:italic;">Nenhum procedimento no cartório realizado por esta conta.</p>`; }
+    else {
+        html += procCart.map(p => `
+            <div style="background:var(--bg); border:1px solid var(--border); padding:8px; border-radius:6px; margin-bottom:6px; font-size:12px;">
+                <strong>${p.servico}</strong> (${p.status})<br>
+                <small class="text-muted">${p.data} às ${p.hora}</small>
+            </div>
+        `).join('');
+    }
+
+    html += `<h5 style="margin-top:16px; margin-bottom:6px;">Cálculos Penais Executados:</h5>`;
+    if(procCalc.length === 0) { html += `<p style="color:var(--muted); font-size:12px; font-style:italic;">Nenhum cálculo ou sentença impressa por esta conta.</p>`; }
+    else {
+        html += procCalc.map(p => `
+            <div style="background:var(--bg); border:1px solid var(--border); padding:8px; border-radius:6px; margin-bottom:6px; font-size:12px;">
+                ${p.detalhes}<br>
+                <small class="text-muted">${p.data} às ${p.hora}</small>
+            </div>
+        `).join('');
+    }
+
+    corpo.innerHTML = html;
+    modal.classList.add('active');
+}
+
+
+// --- CARTÓRIO ONLINE ---
+const categoriesConfig={
+portes:{title:'Porte de Armas',icon:'fa-gun',class:'portes',desc:'Registros e autorizações de armamentos'},
+casamentos:{title:'Casamentos',icon:'fa-heart',class:'casamentos',desc:'União estável e certidões'},
+adocoes:{title:'Adoções',icon:'fa-child',class:'adocao',desc:'Processos de adoção legal'},
+divorcios:{title:'Divórcios',icon:'fa-heart-crack',class:'divorcio',desc:'Dissolução de união conjugal'}
+};
+
+function renderCartorioCategories(){
+const container=document.getElementById('cartorio-categories');
+if(!container)return;
+updateCartorioStats();
+container.innerHTML=Object.keys(categoriesConfig).map(key=>{
+const cfg=categoriesConfig[key],data=cartorioData[key]||{registros:[]};
+return `<div class="cartorio-category">
+<div class="cat-header" onclick="openSubpage('${key}')">
+<div class="cat-icon ${cfg.class}"><i class="fas ${cfg.icon}"></i></div>
+<div class="cat-info"><h3>${cfg.title}</h3><span>${data.registros.length} Procedimentos Cadastrados</span></div>
+<i class="fas fa-chevron-right cat-toggle"></i>
+</div></div>`}).join('');
+}
+
+function updateCartorioStats(){
+let total=0,pendentes=0,concluidos=0,valor=0;
+Object.keys(cartorioData).forEach(k=>{
+const list=cartorioData[k].registros||[];
+total+=list.length;
+list.forEach(r=>{
+if(r.status==='Concluído')concluidos++;
+else pendentes++; // Pendente ou Em Andamento conta como em processo
+valor+=(parseFloat(r.valor)||0);
+});});
+document.getElementById('stat-total').textContent=total;
+document.getElementById('stat-pendentes').textContent=pendentes;
+document.getElementById('stat-concluidos').textContent=concluidos;
+document.getElementById('stat-valor').textContent='R$ '+fmt(valor);
+}
+
+function renderHistoricoCartorioGeral() {
+    const corpo = document.getElementById('historico-cartorio-corpo');
+    if(!corpo) return;
+    if(historicoCartorioGeral.length === 0) {
+        corpo.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--muted);">Nenhum procedimento registrado no histórico geral.</td></tr>`;
+        return;
+    }
+    corpo.innerHTML = historicoCartorioGeral.map(h => `
+        <tr>
+            <td><strong>${h.advogadoNome}</strong><br><small style="color:var(--muted);">${h.advogadoCargo} (ID: ${h.advogadoId})</small></td>
+            <td>${h.servico}</td>
+            <td>${h.data} às ${h.hora}</td>
+            <td><span class="status-badge ${h.status === 'Concluído' ? 'status-concluido' : h.status === 'Em Andamento' ? 'status-emandamento' : 'status-pendente'}">${h.status}</span></td>
+        </tr>
+    `).join('');
+}
+
+function openSubpage(cat){
+currentCategory=cat;
+document.getElementById('cartorio-categories').classList.add('hidden');
+const sub=document.getElementById('cartorio-subpage');sub.classList.remove('hidden');
+const content=document.getElementById('subpage-content'),cfg=categoriesConfig[cat],data=cartorioData[cat]||{registros:[]};
+content.innerHTML=`<div class="subpage-header"><i class="fas ${cfg.icon}" style="color:var(--accent)"></i><h2>Procedimentos de ${cfg.title}</h2></div>
+<div style="display:flex;justify-content:between;align-items:center;margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+    <p style="color:var(--muted); flex:1;">Lista completa de procedimentos em processo ou concluídos.</p>
+    <button class="btn btn-primary btn-sm" onclick="openRegistroModal('add')"><i class="fas fa-plus"></i> Novo Registro</button>
+</div>
+<div class="data-table-container">
+<table class="data-table"><thead><tr><th>Cidadão / ID</th><th>Advogado Responsável</th><th>Status</th><th>Valor</th><th>Ações</th></tr></thead>
+<tbody>${data.registros.length===0?'<tr><td colspan="5" style="text-align:center;color:var(--muted)">Nenhum registro nesta categoria.</td></tr>':
+data.registros.map((r,i)=>`<tr><td><strong>${r.cidadao}</strong><br><small style="color:var(--muted)">ID: ${r.cidadaoId}</small></td><td>${r.advogadoNome}<br><small style="color:var(--muted)">${r.advogadoCargo}</small></td><td><span class="status-badge ${r.status==='Concluído'?'status-concluido':r.status==='Em Andamento'?'status-emandamento':'status-pendente'}">${r.status}</span></td><td>R$ ${fmt(r.valor)}</td><td><div style="display:flex;gap:6px;"><button class="btn btn-outline btn-sm" style="padding:4px 8px;" onclick="openRegistroModal('edit',${i})" title="Editar"><i class="fas fa-edit"></i></button><button class="btn btn-danger btn-sm" style="padding:4px 8px;" onclick="deleteRegistro(${i})" title="Excluir"><i class="fas fa-trash"></i></button></div></td></tr>`).join('')}</tbody></table></div>`;
+}
+
+function backToCategories(){
+currentCategory=null;
+document.getElementById('cartorio-subpage').classList.add('hidden');
+document.getElementById('cartorio-categories').classList.remove('hidden');
+renderCartorioCategories();
+}
+
+function openRegistroModal(mode,index=null){
+editingRegistroIndex=index;
+const modal=document.getElementById('modal-registro'),title=document.getElementById('modal-reg-title'),body=document.getElementById('modal-reg-body');
+title.textContent=mode==='edit'?'Editar Registro':'Novo Registro de '+categoriesConfig[currentCategory].title;
+
+let r=mode==='edit'?cartorioData[currentCategory].registros[index]:{cidadao:'',cidadaoId:'',valor:'',status:'Pendente',advogadoNome: usuarioLogado.nome, advogadoId: usuarioLogado.id, advogadoCargo: usuarioLogado.cargo};
+
+body.innerHTML=`
+<div class="form-row">
+<div class="form-group"><label>Nome do Cidadão (Envolvido)</label><input type="text" class="form-control" id="reg-cidadao" value="${r.cidadao}"></div>
+<div class="form-group"><label>ID do Cidadão</label><input type="text" class="form-control" id="reg-cidadaoid" value="${r.cidadaoId}"></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label>Nome do Advogado</label><input type="text" class="form-control" id="reg-adv-nome" value="${r.advogadoNome}"></div>
+<div class="form-group"><label>ID do Advogado</label><input type="number" class="form-control" id="reg-adv-id" value="${r.advogadoId}"></div>
+</div>
+<div class="form-group">
+<label>Cargo do Advogado</label>
+<select class="form-control" id="reg-adv-cargo">
+    <option value="Estagiário OAB" ${r.advogadoCargo==='Estagiário OAB'?'selected':''}>Estagiário OAB</option>
+    <option value="advogado junior" ${r.advogadoCargo==='advogado junior'?'selected':''}>Advogado Junior</option>
+    <option value="advogado sênior" ${r.advogadoCargo==='advogado sênior'?'selected':''}>Advogado Sênior</option>
+    <option value="advogado" ${r.advogadoCargo==='advogado'?'selected':''}>Advogado</option>
+    <option value="escrivão" ${r.advogadoCargo==='escrivão'?'selected':''}>Escrivão</option>
+    <option value="promotor" ${r.advogadoCargo==='promotor'?'selected':''}>Promotor</option>
+    <option value="juiz" ${r.advogadoCargo==='juiz'?'selected':''}>Juiz</option>
+    <option value="CORREGEDOR" ${r.advogadoCargo==='CORREGEDOR'?'selected':''}>CORREGEDOR</option>
+    <option value="DIRETORIA TRIBUNAL" ${r.advogadoCargo==='DIRETORIA TRIBUNAL'?'selected':''}>DIRETORIA TRIBUNAL</option>
+    <option value="DESEMBARGADOR" ${r.advogadoCargo==='DESEMBARGADOR'?'selected':''}>DESEMBARGADOR</option>
+    <option value="CHEF.DESEMBARGADOR" ${r.advogadoCargo==='CHEF.DESEMBARGADOR'?'selected':''}>CHEF.DESEMBARGADOR</option>
+</select>
+</div>
+<div class="form-row">
+<div class="form-group"><label>Taxa / Valor (R$)</label><input type="number" class="form-control" id="reg-valor" value="${r.valor}"></div>
+<div class="form-group"><label>Estado do Procedimento</label><select class="form-control" id="reg-status">
+<option value="Pendente" ${r.status==='Pendente'?'selected':''}>Pendente</option>
+<option value="Em Andamento" ${r.status==='Em Andamento'?'selected':''}>Em Andamento</option>
+<option value="Concluído" ${r.status==='Concluído'?'selected':''}>Concluído</option>
+</select></div>
+</div>`;
+modal.classList.add('active');
+}
+
+function closeRegistroModal(){document.getElementById('modal-registro').classList.remove('active')}
+
+function saveRegistro(){
+const cidadao=document.getElementById('reg-cidadao').value.trim();
+const cidadaoId=document.getElementById('reg-cidadaoid').value.trim();
+const advogadoNome=document.getElementById('reg-adv-nome').value.trim();
+const advogadoId=document.getElementById('reg-adv-id').value.trim();
+const advogadoCargo=document.getElementById('reg-adv-cargo').value;
+const valor=parseFloat(document.getElementById('reg-valor').value)||0;
+const status=document.getElementById('reg-status').value;
+
+if(!cidadao || !advogadoNome || !advogadoId){alert('Preencha os campos obrigatórios!');return}
+
+const obj={cidadao,cidadaoId,advogadoNome,advogadoId,advogadoCargo,valor,status};
+
+if(editingRegistroIndex!==null){
+    cartorioData[currentCategory].registros[editingRegistroIndex]=obj;
+}else{
+    cartorioData[currentCategory].registros.push(obj);
+}
+
+// Alimentar o Histórico Geral do Cartório com Data/Hora da ação atual
+const acaoHistorico = {
+    advogadoNome,
+    advogadoId,
+    advogadoCargo,
+    servico: `${categoriesConfig[currentCategory].title} (${cidadao} / ID: ${cidadaoId})`,
+    status,
+    data: new Date().toLocaleDateString('pt-BR'),
+    hora: new Date().toLocaleTimeString('pt-BR')
+};
+historicoCartorioGeral.unshift(acaoHistorico); // Adiciona no início da lista
+
+localStorage.setItem('historicoCartorioGeral', JSON.stringify(historicoCartorioGeral));
+saveCartorio();
+openSubpage(currentCategory);
+closeRegistroModal();
+updateCartorioStats();
+}
+
+function deleteRegistro(index){
+if(!confirm('Deseja excluir este procedimento?'))return;
+cartorioData[currentCategory].registros.splice(index,1);
+saveCartorio();
+openSubpage(currentCategory);
+updateCartorioStats();
+}
+</script>
+</body>
+</html>
